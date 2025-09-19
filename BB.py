@@ -21,12 +21,15 @@ escribe input / in para registrar un ingreso u output / out para registrar una s
   
 Puedes desactivar esta alerta usando firstTimeAlert configurarlo a False\n"""
 
+firstStart = True
+
 while gate:
     dateProgress = mDate - rDate
 
-    if firstTAlert:
+    if firstTAlert and firstStart:
         print(bbMsg)
         cmd = input("Enter para continuar")
+        firstStart = False
         blazeLib.clear()
 
     print(f"Tu meta actual es ${meta}\nTe faltan ${meta - progress} para alcanzarla!\nNecesitas ${operator} al dia para alcanzarla\n{dateProgress} dias restantes para alcanzarla")
@@ -61,6 +64,8 @@ while gate:
         mDate = int(input("En cuantos dias?: "))
         operator = int(meta / mDate)
 
+    blazeLib.clear()
+
     if cmd == "exit":
         print("Saliendo...")
         currentData = {
@@ -76,3 +81,4 @@ while gate:
         dataHelper = dataHelper.dataSaver()
         gate = False
         print("Goodbye")
+        blazeLib.wait(1)
