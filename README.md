@@ -13,3 +13,13 @@ lista de comandos:
 - conf m
 - firstTimeAlert
 - exit
+
+# Instalacion
+
+Puedes descargar ```BB.exe``` desde la seccion de releases, es recomendable descargar siempre la ultima version. Una vez descargues
+la ultima version puedes poner ```BB.exe``` dentro de una carpeta vacia (no es necesario pero es lo recomendable) y desde ahi solo
+debes darle doble click o enter para ejecutarlo como un programa normal.
+
+Si es tu primera vez abriendo ```BB.exe``` dentro de la carpeta donde se encuentra se creara un archivo ```Data.data```, este
+contiene todos los datos guardados por el programa y por ti, no necesitas eliminar el archivo para actualizar el programa, con
+reemplazar ```BB.exe``` por una nueva version es suficiente
