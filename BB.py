@@ -1,84 +1,89 @@
+import threading
+
 from DataHelper import DataHelper
 from BlazeLib import Utils
 
-blazeLib = Utils()
-dataHelper = DataHelper()
-dataHelper.dataLoader()
-data = dataHelper.getData()
+class BB:
+    def __init__(self):
+        self.dataHelper = DataHelper(self)
+        self.blazeLib = Utils()
+        self.dataHelper.dataLoader()
 
-gate = True
-firstTAlert = data["firstTAlert"]
-meta = data["meta"]
-progress = data["progress"]
-mDate = data["mDate"] # Días configurados de la meta
-rDate = data["rDate"] # Días registrados, lo uso para calcular el faltante a la fecha configurada
-operator = data["operator"]
-currentDate = data["currentDate"] # Aún no hace nada
+        self.gate = True
 
-bbMsg = """---Budget Buddy Helper--
+        self.firstTAlert = self.dataHelper.data["firstTAlert"]
+        self.meta = self.dataHelper.data["meta"]
+        self.progress = self.dataHelper.data["progress"]
+        self.mDate = self.dataHelper.data["mDate"] # Días configurados de la meta
+        self.rDate = self.dataHelper.data["rDate"] # Días registrados, lo uso para calcular el faltante a la fecha configurada
+        self.operator = self.dataHelper.data["operator"]
+        self.currentDate = self.dataHelper.data["currentDate"] # Aún no hace nada
+
+        self.dateProgress = 0
+
+        self.firstStart = True
+
+        self.bbMsg = """---Budget Buddy Helper--
 Puedes escribir config meta o conf m para configurar una meta,
 escribe input / in para registrar un ingreso u output / out para registrar una salida.
   
 Puedes desactivar esta alerta usando firstTimeAlert configurarlo a False\n"""
 
-firstStart = True
+    #Main loop
+    def main(self):
 
-while gate:
-    dateProgress = mDate - rDate
+        autosave = threading.Thread(target=self.dataHelper.autosave, daemon=True)
+        autosave.start()
 
-    if firstTAlert and firstStart:
-        print(bbMsg)
-        cmd = input("Enter para continuar")
-        firstStart = False
-        blazeLib.clear()
+        while self.gate:
+            self.dateProgress = self.mDate - self.rDate
 
-    print(f"Tu meta actual es ${meta}\nTe faltan ${meta - progress} para alcanzarla!\nNecesitas ${operator} al dia para alcanzarla\n{dateProgress} dias restantes para alcanzarla")
-    cmd = input("N: ")
+            if self.firstTAlert and self.firstStart:
+                print(self.bbMsg)
+                cmd = input("Enter para continuar")
+                self.firstStart = False
+                self.blazeLib.clear()
 
-    if cmd == "firstTimeAlert":
-        cmd = input("Nuevo valor: ")
-        if cmd == "True":
-            firstTAlert = True
-        if cmd == "False":
-            firstTAlert = False
+            print(f"Tu meta actual es ${self.meta}\nTe faltan ${self.meta - self.progress} para alcanzarla!\nNecesitas ${self.operator} al dia para alcanzarla\n{self.dateProgress} dias restantes para alcanzarla")
+            cmd = input("N: ")
 
-    if cmd == "input" or cmd == "in":
-        if meta <= 0:
-            print("Configura una meta primero!")
-            continue
-        cmd = int(input("Valor de ingreso: "))
-        progress += cmd
+            if cmd == "firstTimeAlert":
+                cmd = input("Nuevo valor: ")
+                if cmd == "True":
+                    self.firstTAlert = True
+                if cmd == "False":
+                    self.firstTAlert = False
 
-    if cmd == "output" or cmd == "out":
-        if meta <= 0:
-            print("Configura una meta primero!")
-            continue
-        if progress <= 0:
-            print("No puedes sacar mas del dinero total que has ingresado")
-            continue
-        cmd = int(input("Valor de salida: "))
-        progress -= cmd
+            if cmd == "input" or cmd == "in":
+                if self.meta <= 0:
+                    print("Configura una meta primero!")
+                    continue
+                cmd = int(input("Valor de ingreso: "))
+                self.progress += cmd
 
-    if cmd == "config meta" or cmd == "conf m":
-        meta = int(input("A que monto quiere llegar?: "))
-        mDate = int(input("En cuantos dias?: "))
-        operator = int(meta / mDate)
+            if cmd == "output" or cmd == "out":
+                if self.meta <= 0:
+                    print("Configura una meta primero!")
+                    continue
+                if self.progress <= 0:
+                    print("No puedes sacar mas del dinero total que has ingresado")
+                    continue
+                cmd = int(input("Valor de salida: "))
+                self.progress -= cmd
 
-    blazeLib.clear()
+            if cmd == "config meta" or cmd == "conf m":
+                self.meta = int(input("A que monto quiere llegar?: "))
+                self.mDate = int(input("En cuantos dias?: "))
+                self.operator = int(self.meta / self.mDate)
 
-    if cmd == "exit":
-        print("Saliendo...")
-        currentData = {
-            "firstTAlert" : firstTAlert,
-            "meta" : meta,
-            "progress" : progress,
-            "mDate" : mDate,
-            "rDate" : rDate,
-            "operator" : operator,
-            "currentDate" : currentDate,
-        }
-        dataHelper.setData(currentData)
-        dataHelper = dataHelper.dataSaver()
-        gate = False
-        print("Goodbye")
-        blazeLib.wait(1)
+            self.blazeLib.clear()
+
+            if cmd == "exit":
+                print("Saliendo...")
+                self.dataHelper.dataSaver()
+                self.gate = False
+                print("Goodbye")
+                self.blazeLib.wait(1)
+
+if __name__ == "__main__":
+    BB().main()

@@ -1,9 +1,11 @@
 import os
 import pickle
+import time
 
 class DataHelper:
 
-    def __init__(self):
+    def __init__(self, bb_instance):
+        self.BB = bb_instance
         self.default = {
             "firstTAlert": True,
             "meta": 0,
@@ -30,11 +32,18 @@ class DataHelper:
 
     def dataSaver(self):
         print("Saving data...")
+        self.data["firstTAlert"] = self.BB.firstTAlert
+        self.data["meta"] = self.BB.meta
+        self.data["progress"] = self.BB.progress
+        self.data["mDate"] = self.BB.mDate
+        self.data["rDate"] = self.BB.rDate
+        self.data["operator"] = self.BB.operator
+        self.data["currentDate"] = self.BB.currentDate
         with open("Data.data", "wb") as dataFile:
             pickle.dump(self.data, dataFile)
         print("Data saved")
 
-    def getData(self):
-        return self.data
-    def setData(self, data):
-        self.data = data
+    def autosave(self):
+        while True:
+            time.sleep(60)
+            self.dataSaver()
